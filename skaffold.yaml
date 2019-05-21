@@ -1,0 +1,30 @@
+apiVersion: skaffold/v1beta2
+kind: Config
+build:
+  artifacts:
+  - image: changeme
+    context: .
+    docker: {}
+  tagPolicy:
+    envTemplate:
+      template: '{{.DOCKER_REGISTRY}}/sguillory6/jx-spring-boot-gradle-quickstart:{{.VERSION}}'
+  local: {}
+deploy:
+  kubectl: {}
+profiles:
+- name: dev
+  build:
+    artifacts:
+    - docker: {}
+    tagPolicy:
+      envTemplate:
+        template: '{{.DOCKER_REGISTRY}}/sguillory6/jx-spring-boot-gradle-quickstart:{{.DIGEST_HEX}}'
+    local: {}
+  deploy:
+    helm:
+      releases:
+      - name: jx-spring-boot-gradle-quickstart
+        chartPath: charts/jx-spring-boot-gradle-quickstart
+        setValueTemplates:
+          image.repository: '{{.DOCKER_REGISTRY}}/sguillory6/jx-spring-boot-gradle-quickstart'
+          image.tag: '{{.DIGEST_HEX}}'
